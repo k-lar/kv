@@ -255,6 +255,7 @@ func main() {
 
             case "status":
                 kvStatus()
+                os.Exit(0)
 
             case "add":
                 if (len(os.Args) > i+1) {
