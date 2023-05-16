@@ -4,7 +4,8 @@ import (
     "fmt"
     "os"
     "log"
-	//"crypto/sha1"
+    "time"
+	// "crypto/sha1"
     // "io"
     // "strconv"
     // "strings"
@@ -20,6 +21,38 @@ func help() {
     fmt.Println()
     fmt.Println("Common uses:")
     fmt.Println("kv init        Create empty kv repository in the current directory")
+}
+
+// func contentToBytes(string filepath) []byte {
+//    file, err := os.Open(filepath)
+//    if err != nil {
+// 		fmt.Println(err)
+//       return nil
+// 	}
+//    defer file.Close()
+//
+//    // Get the file size
+//    stat, err := file.Stat()
+//    if err != nil {
+//       fmt.Println(err)
+//       return nil
+//    }
+//
+//    // Read the file into a byte slice
+//    bs := make([]byte, stat.Size())
+//    _, err = bufio.NewReader(file).Read(bs)
+//    if err != nil && err != io.EOF {
+//       fmt.Println(err)
+//       return nil
+//    }
+//
+//    return bs
+// }
+
+func getCurrentTime() string {
+    currentTime := time.Now()
+    timeString := currentTime.Format("2006-01-02 15:04:05")
+    return timeString
 }
 
 func createInitFiles() {
@@ -87,6 +120,21 @@ func main() {
 
             case "init":
                 kvInit()
+
+            case "add":
+                if (len(os.Args) > i+1) {
+                    for i := i+1; i < len(os.Args); i++ {
+                        fmt.Printf("Added %s\n", os.Args[i])
+                    }
+
+                } else {
+                    fmt.Println("Nothing to add.")
+                    os.Exit(0)
+                }
+                os.Exit(0)
+
+            case "time":
+                fmt.Println(getCurrentTime())
 
             default:
                 fmt.Printf("Unknown argument \"%s\"\n", os.Args[i])
