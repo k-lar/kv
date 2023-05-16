@@ -205,6 +205,28 @@ func duplicateStageFile(filename string) (bool, int) {
     return isDuplicate, lineNum
 }
 
+func kvStatus() {
+    readFile, err := os.Open(".kv/staging-area.txt")
+    if err != nil {
+        log.Println(err)
+    }
+
+    fileScanner := bufio.NewScanner(readFile)
+    fileScanner.Split(bufio.ScanLines)
+
+    for fileScanner.Scan() {
+        // lineNum = lineNum + 1
+        line := fileScanner.Text()
+        splitLine := strings.Split(line, ";")
+        // splitLine[0] - filepath
+        // splitLine[1] - modification date
+        // splitLine[2] - sha1 hash
+        // splitLine[3] - status (created/updated/deleted)
+
+        fmt.Printf("%s: %s - %s\n", strings.ToUpper(splitLine[3]), splitLine[0], splitLine[1])
+    }
+}
+
 func fileExists(filepath string) bool {
     result := false
     if _, err := os.Stat(filepath); err == nil {
@@ -230,6 +252,9 @@ func main() {
 
             case "init":
                 kvInit()
+
+            case "status":
+                kvStatus()
 
             case "add":
                 if (len(os.Args) > i+1) {
