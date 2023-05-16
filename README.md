@@ -54,6 +54,16 @@ library. I'll try to do this with as few dependencies as I can.
 
 I'll keep track of deleted files
 
+### Stages
+
+```
++----------------+       +---------------+
+|                |       |               |
+|    Staging     |  -->  |   Commited    |
+|                |       |               |
++----------------+       +---------------+
+```
+
 ### How it starts
 
 ```
