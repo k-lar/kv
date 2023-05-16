@@ -12,6 +12,33 @@ derive the version the user asked for.”
 Inspiration:
 [here](https://levelup.gitconnected.com/how-was-i-build-a-version-control-system-vcs-using-pure-go-83ec8ec5d4f4)
 
+## Installation
+
+Building from source:
+```console
+git clone https://gitlab.com/k_lar/kv; cd kv/
+
+# Build the program:
+go build main.go
+
+# Rename binary (optional)
+mv main kv
+```
+
+## Usage
+
+Basic usage:
+```
+# Initialize repository in the current directory
+kv init
+
+# Add files to staging area
+kv add <path/to/file>
+
+# Show what's in the staging area
+kv status
+```
+
 ## Simple breakdown
 
 - Save a commited file to `.kv` folder
