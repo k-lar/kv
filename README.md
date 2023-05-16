@@ -57,6 +57,7 @@ I'll keep track of deleted files
 - [ ] Status, show what's in the staging area
 - [ ] Add files to the staging area
 - [ ] Commit files/changes
+- [ ] Implement SHA1 hashing of commits for integrity checks
 - [ ] View history
 - [ ] Track deleted files
 - [ ] Rollback to previous commits
