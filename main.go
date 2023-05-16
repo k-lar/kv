@@ -236,7 +236,6 @@ func main() {
                     for i := i+1; i < len(os.Args); i++ {
                         // fmt.Printf("Added %s\n", os.Args[i])
                         stageFile(os.Args[i])
-
                     }
 
                 } else {
@@ -244,9 +243,6 @@ func main() {
                     os.Exit(0)
                 }
                 os.Exit(0)
-
-            case "time":
-                fmt.Println(getCurrentTime())
 
             default:
                 fmt.Printf("Unknown argument \"%s\"\n", os.Args[i])
