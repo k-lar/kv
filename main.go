@@ -4,6 +4,7 @@ import (
     "fmt"
     "os"
     "log"
+	//"crypto/sha1"
     // "io"
     // "strconv"
     // "strings"
@@ -50,19 +51,23 @@ func createInitFiles() {
     if err != nil {
     	log.Println(err)
     }
-    fmt.Printf("Initialized empty kv repository in %s\n", currentDir)
+    fmt.Printf("Initialized empty kv repository in %s/.kv/\n", currentDir)
 }
 
-func checkInitFiles() {
+func checkInitFiles() bool {
+    result := false
     if _, err := os.Stat(".kv/"); !os.IsNotExist(err) {
     	// .kv/ directory does exist
-        fmt.Println("Directory already initialized!")
-        os.Exit(0)
+        result = true
     }
+    return result
 }
 
 func kvInit() {
-    checkInitFiles()
+    if (checkInitFiles() == true) {
+        fmt.Println("Directory already initialized!")
+        os.Exit(0)
+    }
     createInitFiles()
 }
 
