@@ -89,8 +89,8 @@ Each file that contains a delta/diff, will contain the hash of itself.
 ## Features I want to implement
 
 - [X] Init the directories and files
-- [ ] Status, show what's in the staging area
-- [ ] Add files to the staging area
+- [X] Status, show what's in the staging area
+- [X] Add files to the staging area
 - [ ] Commit files/changes
 - [ ] Implement SHA1 hashing of commits for integrity checks
 - [ ] View history
