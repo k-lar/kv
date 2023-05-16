@@ -5,10 +5,11 @@ import (
     "os"
     "log"
     "time"
+    "bufio"
+    "strings"
+    // "strconv"
 	// "crypto/sha1"
     // "io"
-    // "strconv"
-    // "strings"
 )
 
 func getVersion() {
@@ -104,7 +105,7 @@ func kvInit() {
     createInitFiles()
 }
 
-func stageFile(file_to_stage string) {
+func stageFile(fileToStage string) {
     f, err := os.OpenFile(".kv/staging-area.txt",
     	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     if err != nil {
@@ -112,19 +113,52 @@ func stageFile(file_to_stage string) {
     }
     defer f.Close()
 
-    if fileExists(file_to_stage) {
-        writeString := file_to_stage + ";" + getCurrentTime() + ";created\n"
+    isDuplicate, lineNum := duplicateStageFile(fileToStage)
+    if (isDuplicate) {
+        fmt.Printf("Found duplicate on line: %d\n", lineNum)
+    }
+
+    if fileExists(fileToStage) {
+        writeString := fileToStage + ";" + getCurrentTime() + ";created\n"
         if _, err := f.WriteString(writeString); err != nil {
         	log.Println(err)
         }
-        fmt.Printf("Added %s to the repository.\n", file_to_stage)
+
+        fmt.Printf("Added %s to the repository.\n", fileToStage)
     } else {
-        fmt.Printf("%s does not exist.", file_to_stage)
+        fmt.Printf("%s does not exist.", fileToStage)
     }
 }
 
-func duplicateStageFile() {
+func duplicateStageFile(filename string) (bool, int) {
     // check for duplicate stage files
+    isDuplicate := false
+
+    readFile, err := os.Open(".kv/staging-area.txt")
+    if err != nil {
+        log.Println(err)
+    }
+
+    fileScanner := bufio.NewScanner(readFile)
+
+    fileScanner.Split(bufio.ScanLines)
+
+    lineNum := 1
+    for fileScanner.Scan() {
+        lineNum = lineNum + 1
+        line := fileScanner.Text()
+        splitLine := strings.Split(line, ";")
+        // splitLine[0] - filepath
+        // splitLine[1] - modification date
+        // splitLine[2] - status (created/updated/deleted)
+
+        if (splitLine[0] == filename) {
+            isDuplicate = true
+            // fmt.Printf("Found duplicate on line: %d", lineNum)
+            return isDuplicate, lineNum
+        }
+    }
+    return isDuplicate, lineNum
 }
 
 func fileExists(filepath string) bool {
