@@ -104,6 +104,38 @@ func kvInit() {
     createInitFiles()
 }
 
+func stageFile(file_to_stage string) {
+    f, err := os.OpenFile(".kv/staging-area.txt",
+    	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+    if err != nil {
+    	log.Println(err)
+    }
+    defer f.Close()
+
+    if fileExists(file_to_stage) {
+        writeString := file_to_stage + ";" + getCurrentTime() + ";created\n"
+        if _, err := f.WriteString(writeString); err != nil {
+        	log.Println(err)
+        }
+        fmt.Printf("Added %s to the repository.\n", file_to_stage)
+    } else {
+        fmt.Printf("%s does not exist.", file_to_stage)
+    }
+}
+
+func duplicateStageFile() {
+    // check for duplicate stage files
+}
+
+func fileExists(filepath string) bool {
+    result := false
+    if _, err := os.Stat(filepath); err == nil {
+       result = true
+
+    }
+    return result
+}
+
 func main() {
     if (len(os.Args) == 1) {
         help()
@@ -124,7 +156,9 @@ func main() {
             case "add":
                 if (len(os.Args) > i+1) {
                     for i := i+1; i < len(os.Args); i++ {
-                        fmt.Printf("Added %s\n", os.Args[i])
+                        // fmt.Printf("Added %s\n", os.Args[i])
+                        stageFile(os.Args[i])
+
                     }
 
                 } else {
