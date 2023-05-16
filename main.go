@@ -7,9 +7,10 @@ import (
     "time"
     "bufio"
     "strings"
+    "crypto/sha1"
+    "io"
+    "encoding/hex"
     // "strconv"
-	// "crypto/sha1"
-    // "io"
 )
 
 func getVersion() {
@@ -24,31 +25,31 @@ func help() {
     fmt.Println("kv init        Create empty kv repository in the current directory")
 }
 
-// func contentToBytes(string filepath) []byte {
-//    file, err := os.Open(filepath)
-//    if err != nil {
-// 		fmt.Println(err)
-//       return nil
-// 	}
-//    defer file.Close()
-//
-//    // Get the file size
-//    stat, err := file.Stat()
-//    if err != nil {
-//       fmt.Println(err)
-//       return nil
-//    }
-//
-//    // Read the file into a byte slice
-//    bs := make([]byte, stat.Size())
-//    _, err = bufio.NewReader(file).Read(bs)
-//    if err != nil && err != io.EOF {
-//       fmt.Println(err)
-//       return nil
-//    }
-//
-//    return bs
-// }
+func contentToBytes(filepath string) []byte {
+   file, err := os.Open(filepath)
+   if err != nil {
+		fmt.Println(err)
+      return nil
+	}
+   defer file.Close()
+
+   // Get the file size
+   stat, err := file.Stat()
+   if err != nil {
+      fmt.Println(err)
+      return nil
+   }
+
+   // Read the file into a byte slice
+   bs := make([]byte, stat.Size())
+   _, err = bufio.NewReader(file).Read(bs)
+   if err != nil && err != io.EOF {
+      fmt.Println(err)
+      return nil
+   }
+
+   return bs
+}
 
 func getCurrentTime() string {
     currentTime := time.Now()
@@ -115,19 +116,61 @@ func stageFile(fileToStage string) {
 
     isDuplicate, lineNum := duplicateStageFile(fileToStage)
     if (isDuplicate) {
-        fmt.Printf("Found duplicate on line: %d\n", lineNum)
+        // fmt.Printf("Found duplicate on line: %d\n", lineNum)
+        deleteLine(".kv/staging-area.txt", lineNum)
     }
 
     if fileExists(fileToStage) {
-        writeString := fileToStage + ";" + getCurrentTime() + ";created\n"
+        sha1data := []byte(contentToBytes(fileToStage))
+	    sha1sum := sha1.Sum(sha1data)
+        sha1Write := hex.EncodeToString(sha1sum[:])
+
+        writeString := fileToStage + ";" + getCurrentTime() + ";" + sha1Write + ";created\n"
         if _, err := f.WriteString(writeString); err != nil {
         	log.Println(err)
         }
 
         fmt.Printf("Added %s to the repository.\n", fileToStage)
     } else {
-        fmt.Printf("%s does not exist.", fileToStage)
+        fmt.Printf("%s does not exist.\n", fileToStage)
     }
+}
+
+func deleteLine(file string, num int) {
+    // Remove content from file if it exists
+    f, _ := os.Open(file)
+
+    // create and open a temporary file
+    f_tmp, err := os.CreateTemp("", "tmpfile-*.txt")
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // Copy content from original to tmp
+    _, err = io.Copy(f_tmp, f)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    f, _ = os.Create(file)
+    tmpfile, _ := os.Open(f_tmp.Name())
+
+    // Create new Scanner.
+    scanner := bufio.NewScanner(tmpfile)
+    line_num := 0
+    // Use Scan.
+    for scanner.Scan() {
+        line_num++
+        line := scanner.Text()
+        if line_num != num {
+            if _, err := f.Write([]byte(line + "\n")); err != nil {
+                fmt.Println(err)
+            }
+        }
+    }
+
+    defer os.Remove(f_tmp.Name())
+    defer f.Close()
 }
 
 func duplicateStageFile(filename string) (bool, int) {
@@ -143,14 +186,15 @@ func duplicateStageFile(filename string) (bool, int) {
 
     fileScanner.Split(bufio.ScanLines)
 
-    lineNum := 1
+    lineNum := 0
     for fileScanner.Scan() {
         lineNum = lineNum + 1
         line := fileScanner.Text()
         splitLine := strings.Split(line, ";")
         // splitLine[0] - filepath
         // splitLine[1] - modification date
-        // splitLine[2] - status (created/updated/deleted)
+        // splitLine[2] - sha1 hash
+        // splitLine[3] - status (created/updated/deleted)
 
         if (splitLine[0] == filename) {
             isDuplicate = true
