@@ -101,6 +101,7 @@ Each file that contains a delta/diff, will contain the hash of itself.
 - [X] Init the directories and files
 - [X] Status, show what's in the staging area
 - [X] Add files to the staging area
+- [ ] Show diff between files (make a builtin diff)
 - [ ] Commit files/changes
 - [ ] Implement SHA1 hashing of commits for integrity checks
 - [ ] View history
