@@ -53,7 +53,7 @@ I'll keep track of deleted files
 
 ## Features I want to implement
 
-- [ ] Init the directories and files
+- [X] Init the directories and files
 - [ ] Status, show what's in the staging area
 - [ ] Add files to the staging area
 - [ ] Commit files/changes
