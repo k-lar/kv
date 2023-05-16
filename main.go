@@ -15,10 +15,10 @@ func getVersion() {
 }
 
 func help() {
-    fmt.Println("gud help msg")
-    fmt.Println("yeah")
-    fmt.Println("oh yeah")
-    fmt.Println("such a good help")
+    fmt.Println("Usage: kv [options]")
+    fmt.Println()
+    fmt.Println("Common uses:")
+    fmt.Println("kv init        Create empty kv repository in the current directory")
 }
 
 func createInitFiles() {
