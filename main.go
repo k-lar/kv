@@ -284,19 +284,15 @@ func commitNumber() int {
         dirArray = append(dirArray, file.Name())
     }
 
-    for i := 0; i < len(dirArray); i++ {
-        fmt.Println(dirArray[i])
-    }
-
     return len(dirArray)
 }
 
 func commitFiles() {
     // If first commit, make commitNum = 1 instead of 0
-    commitNum := commitNumber()
-    if (commitNum == 0) {
-        commitNum = 1
-    }
+    commitNum := commitNumber() + 1
+    // if (commitNum == 0) {
+    //     commitNum = 1
+    // }
 
     commits, err := readLines(".kv/staging-area.txt")
     if err != nil {
