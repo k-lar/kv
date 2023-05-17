@@ -210,7 +210,7 @@ func duplicateStageFile(filename string) (bool, int) {
     return isDuplicate, lineNum
 }
 
-func kvStatus() {
+func getStagingArea() {
     readFile, err := os.Open(".kv/staging-area.txt")
     if err != nil {
         log.Println(err)
@@ -230,6 +230,21 @@ func kvStatus() {
 
         fmt.Printf("%s: %s - %s\n", strings.ToUpper(splitLine[3]), splitLine[0], splitLine[1])
     }
+}
+
+func kvStatus() {
+    if (!isStagingEmpty()) {
+        fmt.Println("Staging:")
+        fmt.Println("============================")
+        getStagingArea()
+        fmt.Println()
+    }
+
+    // if (dirHasUntrackedFiles()) {
+    //     fmt.Println("Untracked files:")
+    //     fmt.Println("============================")
+    //     showUntrackedFiles()
+    // }
 }
 
 func clearStagingArea() {
@@ -289,6 +304,19 @@ func commitNumber() int {
     }
 
     return len(dirArray)
+}
+
+func isStagingEmpty() bool {
+    stagingArea, err := os.Stat(".kv/staging-area.txt")
+    if err != nil {
+    	log.Println(err)
+    }
+    stagingSize := stagingArea.Size()
+
+    if (stagingSize == 0) {
+        return true
+    }
+    return false
 }
 
 func commitFiles() {
@@ -366,15 +394,8 @@ func main() {
                 os.Exit(0)
 
             case "commit":
-                // staging_size, err := os.Stat(".kv/staging-area.txt").st_size
-                stagingArea, err := os.Stat(".kv/staging-area.txt")
-                if err != nil {
-                	log.Println(err)
-                }
-                stagingSize := stagingArea.Size()
-
-	            if (stagingSize == 0) {
-                    fmt.Println("No changes to commit.")
+                if (isStagingEmpty()) {
+                    fmt.Println("Nothing to commit.")
                     os.Exit(0)
                 }
 
