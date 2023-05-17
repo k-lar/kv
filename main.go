@@ -10,7 +10,9 @@ import (
     "crypto/sha1"
     "io"
     "encoding/hex"
-    // "strconv"
+    "io/ioutil"
+    "strconv"
+    // "compress/zlib"
 )
 
 func getVersion() {
@@ -227,6 +229,102 @@ func kvStatus() {
     }
 }
 
+func clearStagingArea() {
+    if err := os.Truncate(".kv/staging-area.txt", 0); err != nil {
+        log.Printf("Failed to truncate: %v", err)
+    }
+}
+
+func readLines(path string) ([]string, error) {
+    file, err := os.Open(path)
+    if err != nil {
+        return nil, err
+    }
+    defer file.Close()
+
+    var lines []string
+    scanner := bufio.NewScanner(file)
+    for scanner.Scan() {
+        lines = append(lines, scanner.Text())
+    }
+    return lines, scanner.Err()
+}
+
+func copyFile(src string, dst string) {
+    // Read all content of src to data, may cause OOM for a large file.
+    data, err := ioutil.ReadFile(src)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    // Write data to dst
+    err = ioutil.WriteFile(dst, data, 0644)
+    if err != nil {
+        log.Fatal(err)
+    }
+}
+
+func trimLeftChar(s string) string {
+	for i := range s {
+		if i > 0 {
+			return s[i:]
+		}
+	}
+	return s[:0]
+}
+
+func commitNumber() int {
+    files, err := os.ReadDir(".kv/commit/")
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    dirArray := []string {}
+    for _, file := range files {
+        dirArray = append(dirArray, file.Name())
+    }
+
+    for i := 0; i < len(dirArray); i++ {
+        fmt.Println(dirArray[i])
+    }
+
+    return len(dirArray)
+}
+
+func commitFiles() {
+    // If first commit, make commitNum = 1 instead of 0
+    commitNum := commitNumber()
+    if (commitNum == 0) {
+        commitNum = 1
+    }
+
+    commits, err := readLines(".kv/staging-area.txt")
+    if err != nil {
+        log.Println(err)
+    }
+
+    for i := 0; i < len(commits); i++ {
+        singleCommit := strings.Split(commits[i], ";")
+        // singleCommit[0] - filepath
+        // singleCommit[1] - modification date
+        // singleCommit[2] - sha1 hash
+        // singleCommit[3] - status (created/updated/deleted)
+        commitVersion := ".kv/commit/v" + strconv.Itoa(commitNum) + "/"
+        commitedFile := commitVersion + singleCommit[0]
+
+        os.MkdirAll(commitVersion, 0700) // Create your file
+
+        f, err := os.Create(commitedFile)
+        if err != nil {
+            log.Fatal(err)
+        }
+        defer f.Close()
+
+        copyFile(singleCommit[0], commitedFile)
+    }
+    clearStagingArea()
+}
+
 func fileExists(filepath string) bool {
     result := false
     if _, err := os.Stat(filepath); err == nil {
@@ -268,6 +366,22 @@ func main() {
                     fmt.Println("Nothing to add.")
                     os.Exit(0)
                 }
+                os.Exit(0)
+
+            case "commit":
+                // staging_size, err := os.Stat(".kv/staging-area.txt").st_size
+                stagingArea, err := os.Stat(".kv/staging-area.txt")
+                if err != nil {
+                	log.Println(err)
+                }
+                stagingSize := stagingArea.Size()
+
+	            if (stagingSize == 0) {
+                    fmt.Println("No changes to commit.")
+                    os.Exit(0)
+                }
+
+                commitFiles()
                 os.Exit(0)
 
             default:
