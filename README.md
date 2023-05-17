@@ -122,6 +122,23 @@ In each commit folder, for example v2:
 ```
 
 Each file that contains a delta/diff, will contain the hash of itself.
+Each version (`v1`, `v2`, ...) will contain the following files:  
+(`v1` directory can only have files that have been created, it would make no sense if it contained
+deleted files or updated files.)
+```
+.kv
+└── commit
+  ├── v1
+  │ ├── .kv_commit  <-- (Contains hash of the whole thing, time, and the commit messege + author)
+  │ ├── file1
+  │ ├── file2
+  │ └── ...
+  └── v2
+    ├── .kv_commit  <-- (Contains hash of the whole thing + parent + above things)
+    ├── file1
+    ├── file2
+    └── ...
+```
 
 ## Features I want to implement
 
