@@ -24,7 +24,10 @@ func help() {
     fmt.Println("Usage: kv [options]")
     fmt.Println()
     fmt.Println("Common uses:")
-    fmt.Println("kv init        Create empty kv repository in the current directory")
+    fmt.Println("kv init                Create empty kv repository in the current directory")
+    fmt.Println("kv add <filename>      Add <filename> to staging area")
+    fmt.Println("kv status              Show what's inside the staging area")
+    fmt.Println("kv commit              Commit changes to a new version")
 }
 
 func contentToBytes(filepath string) []byte {
@@ -274,6 +277,7 @@ func trimLeftChar(s string) string {
 }
 
 func commitNumber() int {
+    // returns the last commit number
     files, err := os.ReadDir(".kv/commit/")
     if err != nil {
         log.Fatal(err)
@@ -290,9 +294,6 @@ func commitNumber() int {
 func commitFiles() {
     // If first commit, make commitNum = 1 instead of 0
     commitNum := commitNumber() + 1
-    // if (commitNum == 0) {
-    //     commitNum = 1
-    // }
 
     commits, err := readLines(".kv/staging-area.txt")
     if err != nil {
