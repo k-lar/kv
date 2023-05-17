@@ -60,14 +60,14 @@ v1, v2, ... are commit versions.
 The `staging-area.txt` contains the files that are going to be in the next commit.
 It should be a basic format (possibly csv) that shows this information:  
 ```
-filepath;modification date;status
+filepath;modification date;hash;status
 ```
 
 For example:
 ```
-"src/main.c;2023-05-11 05:42:15;Created"
-".kvignore;2023-05-16 05:11:04;Created"
-"README.md;2022-04-14 05:49:09;Updated"
+"src/main.c;2023-05-11 05:42:15;sa31sv35s92js84jg33;created"
+".kvignore;2023-05-16 05:11:04;hw81ks96ms24dl80sm12;created"
+"README.md;2022-04-14 05:49:09;bl12sh56ka93tl22xc56;updated"
 ```
 
 `final` is a folder that includes the result of merging all files with the specified
@@ -103,10 +103,9 @@ I'll keep track of deleted files
   └── v2
 ```
 
-The first commit ever, gets put in this `v1` directory. This is the only time that `kv`
-will copy any file contents. All commited files will be copied into the `v1` directory.
-Every other subsequent version/commit, will contain only deltas/diffs/changes done to the
-`v1` directory. Every file will be hashed with sha1, so that later comparisons can be made.
+The first commit ever, gets put in this `v1` directory. All commited files will be copied
+into the `v1` directory. Every file will be hashed with sha1, so that later comparisons can
+be made.
 
 ### Hashing files
 
@@ -121,7 +120,7 @@ In each commit folder, for example v2:
   └── v2  <---- This one
 ```
 
-Each file that contains a delta/diff, will contain the hash of itself.
+Each file should be hashed so that it can be validated.
 Each version (`v1`, `v2`, ...) will contain the following files:  
 (`v1` directory can only have files that have been created, it would make no sense if it contained
 deleted files or updated files.)
