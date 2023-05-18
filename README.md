@@ -139,13 +139,31 @@ deleted files or updated files.)
     └── ...
 ```
 
+## What `status` should do
+
+Currently, status only displays what's in the staging area. What I want it to do, is show and
+untracked files and any files that have been modified.
+
+## How commits know which files to take from previous versions
+
+How I think it can work:
+
+1. Check which files are in previous commit
+2. Check which files are staged
+3. Created files get put in the newest commit without trouble
+4. Put all previously commited files in an array:
+    a. If staging doesn't contain filename of commited file, copy file from previous commit
+       to newest commit
+    b. If staging contains commited filename (updated), copy it from repo to newest commit
+    c. If staging has a deleted file, don't copy it from anywhere
+
 ## Features I want to implement
 
 - [X] Init the directories and files
 - [X] Status, show what's in the staging area
 - [X] Add files to the staging area
-- [ ] Show diff between files (make a builtin diff)
 - [ ] Commit files/changes
+- [ ] Show diff between files (make a builtin diff)
 - [ ] Implement SHA1 hashing of commits for integrity checks
 - [ ] View history
 - [ ] Track deleted files
