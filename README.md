@@ -153,10 +153,10 @@ How I think it can work:
 2. Check which files are staged
 3. Created files get put in the newest commit without trouble
 4. Put all previously commited files in an array:
-    a. If staging doesn't contain filename of commited file, copy file from previous commit
+    - If staging doesn't contain filename of commited file, copy file from previous commit
        to newest commit
-    b. If staging contains commited filename (updated), copy it from repo to newest commit
-    c. If staging has a deleted file, don't copy it from anywhere
+    - If staging contains commited filename (updated), copy it from repo to newest commit
+    - If staging has a deleted file, don't copy it from anywhere
 
 ## Features I want to implement
 
