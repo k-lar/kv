@@ -103,7 +103,7 @@ I'll keep track of deleted files
   └── v2
 ```
 
-The first commit ever, gets put in this `v1` directory. All commited files will be copied
+The first commit ever, gets put in this `v1` directory. All staged files will be copied
 into the `v1` directory. Every file will be hashed with sha1, so that later comparisons can
 be made.
 
@@ -141,8 +141,9 @@ deleted files or updated files.)
 
 ## What `status` should do
 
-Currently, status only displays what's in the staging area. What I want it to do, is show and
-untracked files and any files that have been modified.
+Currently, status only displays what's in the staging area. What I want it to do, is show
+untracked files and any files that have been modified (do that by checking hash of files in repo
+against the ones in the last commit).
 
 ## How commits know which files to take from previous versions
 
