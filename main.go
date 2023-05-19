@@ -12,6 +12,7 @@ import (
     "encoding/hex"
     "io/ioutil"
     "strconv"
+    "path/filepath"
     // "compress/zlib"
 )
 
@@ -111,6 +112,13 @@ func kvInit() {
     createInitFiles()
 }
 
+func getHashSum(filepath string) string {
+    sha1data := []byte(contentToBytes(filepath))
+    sha1sum := sha1.Sum(sha1data)
+    sha1Write := hex.EncodeToString(sha1sum[:])
+    return sha1Write
+}
+
 func stageFile(fileToStage string) {
     f, err := os.OpenFile(".kv/staging-area.txt",
     	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -126,10 +134,7 @@ func stageFile(fileToStage string) {
     }
 
     if fileExists(fileToStage) {
-        sha1data := []byte(contentToBytes(fileToStage))
-	    sha1sum := sha1.Sum(sha1data)
-        sha1Write := hex.EncodeToString(sha1sum[:])
-
+        sha1Write := getHashSum(fileToStage)
         writeString := fileToStage + ";" + getCurrentTime() + ";" + sha1Write + ";created\n"
         if _, err := f.WriteString(writeString); err != nil {
         	log.Println(err)
@@ -211,7 +216,20 @@ func duplicateStageFile(filename string) (bool, int) {
 }
 
 func getStagingArea() {
-    readFile, err := os.Open(".kv/staging-area.txt")
+    var rootDir string
+    if (len(getRootDir()) == 1) {
+        rootDir = ".kv/"
+    } else {
+        rootDir = getRootDir() + "/.kv/"
+    }
+
+
+    stagingArea := rootDir + "staging-area.txt"
+    // err := os.Chdir(rootDir)
+    // if err != nil {
+    //     log.Println(err)
+    // }
+    readFile, err := os.Open(stagingArea)
     if err != nil {
         log.Println(err)
     }
@@ -232,6 +250,103 @@ func getStagingArea() {
     }
 }
 
+func getRootDir() string {
+    start := "."
+    count := 0
+    for count < 5 {
+        check := filepath.Join(start, ".kv")
+        fi, err := os.Stat(check)
+        if err == nil && fi.IsDir() {
+            return start
+        }
+        start = filepath.Join(start, "..")
+        count++
+    }
+    return ""
+}
+
+// func dirHasUntrackedFiles() bool, string[] {
+//     // Oh god this function is so ugly
+//     // fix this with proper smaller functions
+//
+//     readFile, err := os.Open(".kv/staging-area.txt")
+//     if err != nil {
+//         log.Println(err)
+//     }
+//
+//     fileScanner := bufio.NewScanner(readFile)
+//     fileScanner.Split(bufio.ScanLines)
+//
+//     stagedFiles := string[] {}
+//     for fileScanner.Scan() {
+//         line := fileScanner.Text()
+//         splitLine := strings.Split(line, ";")
+//         // splitLine[0] - filepath
+//         // splitLine[1] - modification date
+//         // splitLine[2] - sha1 hash
+//         // splitLine[3] - status (created/updated/deleted)
+//         stagedFiles = append(stagedFiles, splitLine[0])
+//     }   // This gets paths of all files in staging
+//
+//     newestCommitDir := ".kv/commit/v" + strconv.Itoa(commitNumber()) + "/"
+//
+//     readFile2, err := os.Open(newestCommitDir)
+//     if err != nil {
+//         log.Println(err)
+//     }
+//
+//     fileScanner := bufio.NewScanner(readFile2)
+//     fileScanner.Split(bufio.ScanLines)
+//
+//     commitedFiles := string[] {}
+//     for fileScanner.Scan() {
+//         line := fileScanner.Text()
+//         splitLine := strings.Split(line, ";")
+//         // splitLine[0] - filepath
+//         // splitLine[1] - modification date
+//         // splitLine[2] - sha1 hash
+//         // splitLine[3] - status (created/updated/deleted)
+//         commitedFiles = append(commitedFiles, splitLine[0])
+//     }   // This gets paths of all files in the repo
+//
+//
+//     repoFiles := string[] {}
+//
+//     err := filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+//         if err != nil {
+//             log.Println(err)
+//         }
+//         // fmt.Printf("dir: %v: name: %s\n", info.IsDir(), path)
+//         if (!info.IsDir()) {
+//             repoFiles = append(repoFiles, path)
+//         }
+//         // return nil
+//     })
+//     if err != nil {
+//         log.Println(err)
+//     }
+//
+//     untrackedFiles := string[] {}
+//     for _, a := range repoFiles {
+//         exists := false
+//         for _, b := range commitedFiles {
+//             if a == b {
+//                 exists = true
+//                 break
+//             }
+//         }
+//         if !exists {
+//             untrackedFiles = append(untrackedFiles, a)
+//         }
+//     }
+//
+//     if (len(untrackedFiles) == 0) {
+//         return false, untrackedFiles
+//     }
+//
+//     return true, untrackedFiles
+// }
+
 func kvStatus() {
     if (!isStagingEmpty()) {
         fmt.Println("Staging:")
@@ -248,7 +363,15 @@ func kvStatus() {
 }
 
 func clearStagingArea() {
-    if err := os.Truncate(".kv/staging-area.txt", 0); err != nil {
+    var rootDir string
+    if (len(getRootDir()) == 1) {
+        rootDir = ".kv/"
+    } else {
+        rootDir = getRootDir() + "/.kv/"
+    }
+    stagingArea := rootDir + "staging-area.txt"
+
+    if err := os.Truncate(stagingArea, 0); err != nil {
         log.Printf("Failed to truncate: %v", err)
     }
 }
@@ -307,7 +430,17 @@ func commitNumber() int {
 }
 
 func isStagingEmpty() bool {
-    stagingArea, err := os.Stat(".kv/staging-area.txt")
+    var rootDir string
+    if (len(getRootDir()) == 1) {
+        rootDir = ".kv/"
+    } else {
+        rootDir = getRootDir() + "/.kv/"
+    }
+    stagingAreaLocation := rootDir + "staging-area.txt"
+
+
+
+    stagingArea, err := os.Stat(stagingAreaLocation)
     if err != nil {
     	log.Println(err)
     }
