@@ -215,7 +215,7 @@ func duplicateStageFile(filename string) (bool, int) {
     return isDuplicate, lineNum
 }
 
-func getStagingArea() {
+func stagingAreaLocation() string {
     var rootDir string
     if (len(getRootDir()) == 1) {
         rootDir = ".kv/"
@@ -223,13 +223,11 @@ func getStagingArea() {
         rootDir = getRootDir() + "/.kv/"
     }
 
+    return rootDir + "staging-area.txt"
+}
 
-    stagingArea := rootDir + "staging-area.txt"
-    // err := os.Chdir(rootDir)
-    // if err != nil {
-    //     log.Println(err)
-    // }
-    readFile, err := os.Open(stagingArea)
+func getStagingArea() {
+    readFile, err := os.Open(stagingAreaLocation())
     if err != nil {
         log.Println(err)
     }
@@ -363,15 +361,7 @@ func kvStatus() {
 }
 
 func clearStagingArea() {
-    var rootDir string
-    if (len(getRootDir()) == 1) {
-        rootDir = ".kv/"
-    } else {
-        rootDir = getRootDir() + "/.kv/"
-    }
-    stagingArea := rootDir + "staging-area.txt"
-
-    if err := os.Truncate(stagingArea, 0); err != nil {
+    if err := os.Truncate(stagingAreaLocation(), 0); err != nil {
         log.Printf("Failed to truncate: %v", err)
     }
 }
