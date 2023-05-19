@@ -16,6 +16,9 @@ import (
     // "compress/zlib"
 )
 
+// TODO: make function that will give you the correct suffix for files when you're not in root dir
+// If you're in rootdir/bla/test/ and want to add file1, make it return string "bla/test/file1"
+
 func getVersion() {
     version := "0.0.1"
     fmt.Println(version)
