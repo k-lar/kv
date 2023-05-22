@@ -323,47 +323,6 @@ func getCommitedFiles() [][]string {
 //     // Oh god this function is so ugly
 //     // fix this with proper smaller functions
 //
-//     readFile, err := os.Open(".kv/staging-area.txt")
-//     if err != nil {
-//         log.Println(err)
-//     }
-//
-//     fileScanner := bufio.NewScanner(readFile)
-//     fileScanner.Split(bufio.ScanLines)
-//
-//     stagedFiles := string[] {}
-//     for fileScanner.Scan() {
-//         line := fileScanner.Text()
-//         splitLine := strings.Split(line, ";")
-//         // splitLine[0] - filepath
-//         // splitLine[1] - modification date
-//         // splitLine[2] - sha1 hash
-//         // splitLine[3] - status (created/updated/deleted)
-//         stagedFiles = append(stagedFiles, splitLine[0])
-//     }   // This gets paths of all files in staging
-//
-//     newestCommitDir := ".kv/commit/v" + strconv.Itoa(commitNumber()) + "/"
-//
-//     readFile2, err := os.Open(newestCommitDir)
-//     if err != nil {
-//         log.Println(err)
-//     }
-//
-//     fileScanner := bufio.NewScanner(readFile2)
-//     fileScanner.Split(bufio.ScanLines)
-//
-//     commitedFiles := string[] {}
-//     for fileScanner.Scan() {
-//         line := fileScanner.Text()
-//         splitLine := strings.Split(line, ";")
-//         // splitLine[0] - filepath
-//         // splitLine[1] - modification date
-//         // splitLine[2] - sha1 hash
-//         // splitLine[3] - status (created/updated/deleted)
-//         commitedFiles = append(commitedFiles, splitLine[0])
-//     }   // This gets paths of all files in the repo
-//
-//
 //     repoFiles := string[] {}
 //
 //     err := filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
@@ -505,6 +464,12 @@ func commitFiles() {
     if err != nil {
         log.Println(err)
     }
+
+    oldDir, err := os.Getwd()
+    if err != nil {
+    	log.Println(err)
+    }
+
     os.Chdir(getRootDir())
 
     for i := 0; i < len(commits); i++ {
@@ -527,6 +492,7 @@ func commitFiles() {
         copyFile(singleCommit[0], commitedFile)
     }
     clearStagingArea()
+    os.Chdir(oldDir)
 }
 
 func fileExists(filepath string) bool {
