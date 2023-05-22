@@ -457,6 +457,8 @@ func isStagingEmpty() bool {
 }
 
 func commitFiles() {
+    // TODO: Create directories for paths if commited file not in root folder!
+
     // If first commit, make commitNum = 1 instead of 0
     commitNum := commitNumber() + 1
 
@@ -481,7 +483,21 @@ func commitFiles() {
         commitVersion := ".kv/commit/v" + strconv.Itoa(commitNum) + "/"
         commitedFile := commitVersion + singleCommit[0]
 
-        os.MkdirAll(commitVersion, 0700) // Create your file
+        os.MkdirAll(commitVersion, 0700) // Create commit directory
+
+        // If file not in root dir, create directories
+        pathToFile := ""
+        if (strings.Contains(singleCommit[0], "/")) {
+            dirToFile := strings.Split(singleCommit[0], "/")
+            for i := 0; i < len(dirToFile) - 1; i++ {
+                pathToFile = pathToFile + dirToFile[i] + "/"
+                fmt.Println(pathToFile)
+            }
+            pathToFile = commitVersion + pathToFile
+            os.MkdirAll(pathToFile, 0700)
+            commitedFile = pathToFile + dirToFile[len(dirToFile)-1]
+            fmt.Println("This one worked ayyy", pathToFile)
+        }
 
         f, err := os.Create(commitedFile)
         if err != nil {
