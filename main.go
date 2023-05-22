@@ -291,6 +291,34 @@ func getStagedFiles() [][]string {
     return result
 }
 
+func getCommitedFiles() [][]string {
+    var commitedFiles [][]string
+    var commitDir string
+    if (len(getRootDir()) == 1) {
+        commitDir = ".kv/commit/v"
+    } else {
+        commitDir = getRootDir() + "/.kv/commit/v"
+    }
+    commitDir = commitDir + strconv.Itoa(commitNumber()) + "/"
+
+    err := filepath.Walk(commitDir, func(path string, info os.FileInfo, err error) error {
+        if err != nil {
+            log.Println(err)
+        }
+        if (!info.IsDir()) {
+            hashOfFile := getHashSum(path)
+            row := []string{path, hashOfFile}
+            commitedFiles = append(commitedFiles, row)
+        }
+        return nil
+    })
+    if err != nil {
+        log.Println(err)
+    }
+
+    return commitedFiles
+}
+
 // func dirHasUntrackedFiles() bool, string[] {
 //     // Oh god this function is so ugly
 //     // fix this with proper smaller functions
@@ -536,6 +564,14 @@ func main() {
                 stagedFiles := getStagedFiles()
                 for i := 0; i < len(stagedFiles); i++ {
                     fmt.Printf("name: %s\thash: %s\n", stagedFiles[i][0], stagedFiles[i][1])
+                }
+                os.Exit(0)
+
+            // Test argument, remove when implemented warning about untracked files
+            case "commited":
+                commitedFiles := getCommitedFiles()
+                for i := 0; i < len(commitedFiles); i++ {
+                    fmt.Printf("name: %s\thash: %s\n", commitedFiles[i][0], commitedFiles[i][1])
                 }
                 os.Exit(0)
 
