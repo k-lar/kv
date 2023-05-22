@@ -158,6 +158,10 @@ How I think it can work:
     - If staging contains commited filename (updated), copy it from repo to newest commit
     - If staging has a deleted file, don't copy it from anywhere
 
+## Known issues
+
+- Can not commit file if you're inside the `.kv/` directory
+
 ## Features I want to implement
 
 - [X] Init the directories and files
