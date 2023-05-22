@@ -457,8 +457,6 @@ func isStagingEmpty() bool {
 }
 
 func commitFiles() {
-    // TODO: Create directories for paths if commited file not in root folder!
-
     // If first commit, make commitNum = 1 instead of 0
     commitNum := commitNumber() + 1
 
