@@ -489,12 +489,10 @@ func commitFiles() {
             dirToFile := strings.Split(singleCommit[0], "/")
             for i := 0; i < len(dirToFile) - 1; i++ {
                 pathToFile = pathToFile + dirToFile[i] + "/"
-                fmt.Println(pathToFile)
             }
             pathToFile = commitVersion + pathToFile
             os.MkdirAll(pathToFile, 0700)
             commitedFile = pathToFile + dirToFile[len(dirToFile)-1]
-            fmt.Println("This one worked ayyy", pathToFile)
         }
 
         f, err := os.Create(commitedFile)
