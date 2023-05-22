@@ -161,6 +161,7 @@ How I think it can work:
 ## Known issues
 
 - Can not commit file if you're inside the `.kv/` directory
+- Only absolute paths from repository root can  be added in staging
 
 ## Features I want to implement
 
