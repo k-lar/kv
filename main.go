@@ -266,6 +266,31 @@ func getRootDir() string {
     return ""
 }
 
+func getStagedFiles() [][]string {
+    readFile, err := os.Open(stagingAreaLocation())
+    if err != nil {
+        log.Println(err)
+    }
+
+    fileScanner := bufio.NewScanner(readFile)
+    fileScanner.Split(bufio.ScanLines)
+
+    var result [][]string
+
+    for fileScanner.Scan() {
+        line := fileScanner.Text()
+        splitLine := strings.Split(line, ";")
+        // splitLine[0] - filepath
+        // splitLine[1] - modification date
+        // splitLine[2] - sha1 hash
+        // splitLine[3] - status (created/updated/deleted)
+
+        row := []string{splitLine[0], splitLine[2]}
+        result = append(result, row)
+    }
+    return result
+}
+
 // func dirHasUntrackedFiles() bool, string[] {
 //     // Oh god this function is so ugly
 //     // fix this with proper smaller functions
@@ -504,6 +529,14 @@ func main() {
 
             case "status":
                 kvStatus()
+                os.Exit(0)
+
+            // Test argument, remove when implemented warning about untracked files
+            case "staged":
+                stagedFiles := getStagedFiles()
+                for i := 0; i < len(stagedFiles); i++ {
+                    fmt.Printf("name: %s\thash: %s\n", stagedFiles[i][0], stagedFiles[i][1])
+                }
                 os.Exit(0)
 
             case "add":
