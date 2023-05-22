@@ -123,7 +123,7 @@ func getHashSum(filepath string) string {
 }
 
 func stageFile(fileToStage string) {
-    f, err := os.OpenFile(".kv/staging-area.txt",
+    f, err := os.OpenFile(stagingAreaLocation(),
     	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     if err != nil {
     	log.Println(err)
@@ -409,7 +409,15 @@ func trimLeftChar(s string) string {
 
 func commitNumber() int {
     // returns the last commit number
-    files, err := os.ReadDir(".kv/commit/")
+    var rootDir string
+    if (len(getRootDir()) == 1) {
+        rootDir = ".kv/"
+    } else {
+        rootDir = getRootDir() + "/.kv/"
+    }
+    commitDir := rootDir + "/commit/"
+
+    files, err := os.ReadDir(commitDir)
     if err != nil {
         log.Fatal(err)
     }
@@ -423,22 +431,13 @@ func commitNumber() int {
 }
 
 func isStagingEmpty() bool {
-    var rootDir string
-    if (len(getRootDir()) == 1) {
-        rootDir = ".kv/"
-    } else {
-        rootDir = getRootDir() + "/.kv/"
-    }
-    stagingAreaLocation := rootDir + "staging-area.txt"
-
-
-
-    stagingArea, err := os.Stat(stagingAreaLocation)
+    // FIXME: Can not commit files if you're inside the .kv/ directory
+    stagingArea, err := os.Stat(stagingAreaLocation())
     if err != nil {
     	log.Println(err)
     }
-    stagingSize := stagingArea.Size()
 
+    stagingSize := stagingArea.Size()
     if (stagingSize == 0) {
         return true
     }
@@ -449,10 +448,11 @@ func commitFiles() {
     // If first commit, make commitNum = 1 instead of 0
     commitNum := commitNumber() + 1
 
-    commits, err := readLines(".kv/staging-area.txt")
+    commits, err := readLines(stagingAreaLocation())
     if err != nil {
         log.Println(err)
     }
+    os.Chdir(getRootDir())
 
     for i := 0; i < len(commits); i++ {
         singleCommit := strings.Split(commits[i], ";")
@@ -509,7 +509,6 @@ func main() {
             case "add":
                 if (len(os.Args) > i+1) {
                     for i := i+1; i < len(os.Args); i++ {
-                        // fmt.Printf("Added %s\n", os.Args[i])
                         stageFile(os.Args[i])
                     }
 
