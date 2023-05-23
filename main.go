@@ -319,11 +319,40 @@ func getCommitedFiles() [][]string {
     return commitedFiles
 }
 
+func getAllFiles() [][]string {
+    var filesInRootDir [][]string
+
+    err := filepath.Walk(getRootDir(), func(path string, info os.FileInfo, err error) error {
+        if err != nil {
+            log.Println(err)
+        }
+        // This is ugly as hell. || operator doesnt work for some reason here so idk what else to do. Wtf
+        if (!info.IsDir()) {
+            if (!strings.HasPrefix(path, ".kv")) {
+                // TODO: Do I keep this? I shouldn't, but it's convenient sometimes.
+                // This ignores everything git related so it doesn't clutter up my testing.
+                // Make this check for environment variable 'KV_GIT_IGNORE == true'
+                if (!strings.HasPrefix(path, ".git")) {
+                    hashOfFile := getHashSum(path)
+                    row := []string{path, hashOfFile}
+                    filesInRootDir = append(filesInRootDir, row)
+                }
+            }
+        }
+        return nil
+    })
+    if err != nil {
+        log.Println(err)
+    }
+
+    return filesInRootDir
+}
+
 // func dirHasUntrackedFiles() bool, string[] {
 //     // Oh god this function is so ugly
 //     // fix this with proper smaller functions
 //
-//     repoFiles := string[] {}
+//     rootDirFiles := string[] {}
 //
 //     err := filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
 //         if err != nil {
@@ -368,6 +397,7 @@ func kvStatus() {
         fmt.Println()
     }
 
+    // TODO: Implement warning about untracked files!
     // if (dirHasUntrackedFiles()) {
     //     fmt.Println("Untracked files:")
     //     fmt.Println("============================")
@@ -550,6 +580,14 @@ func main() {
                 commitedFiles := getCommitedFiles()
                 for i := 0; i < len(commitedFiles); i++ {
                     fmt.Printf("name: %s\thash: %s\n", commitedFiles[i][0], commitedFiles[i][1])
+                }
+                os.Exit(0)
+
+            // Test argument, remove when implemented warning about untracked files
+            case "all":
+                allFiles := getAllFiles()
+                for i := 0; i < len(allFiles); i++ {
+                    fmt.Printf("name: %s\thash: %s\n", allFiles[i][0], allFiles[i][1])
                 }
                 os.Exit(0)
 
