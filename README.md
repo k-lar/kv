@@ -35,8 +35,11 @@ kv init
 # Add files to staging area
 kv add <path/to/file>
 
-# Show what's in the staging area
+# Show what's in the staging area + modified and untracked files
 kv status
+
+# Commit changes to the repository
+kv commit
 ```
 
 ## Simple breakdown
