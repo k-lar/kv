@@ -348,46 +348,71 @@ func getAllFiles() [][]string {
     return filesInRootDir
 }
 
-// func dirHasUntrackedFiles() bool, string[] {
-//     // Oh god this function is so ugly
-//     // fix this with proper smaller functions
-//
-//     rootDirFiles := string[] {}
-//
-//     err := filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
-//         if err != nil {
-//             log.Println(err)
-//         }
-//         // fmt.Printf("dir: %v: name: %s\n", info.IsDir(), path)
-//         if (!info.IsDir()) {
-//             repoFiles = append(repoFiles, path)
-//         }
-//         // return nil
-//     })
-//     if err != nil {
-//         log.Println(err)
-//     }
-//
-//     untrackedFiles := string[] {}
-//     for _, a := range repoFiles {
-//         exists := false
-//         for _, b := range commitedFiles {
-//             if a == b {
-//                 exists = true
-//                 break
-//             }
-//         }
-//         if !exists {
-//             untrackedFiles = append(untrackedFiles, a)
-//         }
-//     }
-//
-//     if (len(untrackedFiles) == 0) {
-//         return false, untrackedFiles
-//     }
-//
-//     return true, untrackedFiles
-// }
+func getUntrackedFiles() []string {
+    allFiles := getAllFiles()
+    stagedFiles := getStagedFiles()
+    commitedFiles := getCommitedFiles()
+
+    untrackedFiles := []string{}
+    addedFiles := []string{}
+
+    for _, fileInRepo := range allFiles {
+        foundInStaged := false
+        for _, fileStaged := range stagedFiles {
+            if fileInRepo[0] == fileStaged[0] { // if filenames match
+                if fileInRepo[1] != fileStaged[1] { // if hashes don't match
+                    if !contains(addedFiles, fileInRepo[0]) {
+                        untrackedFiles = append(untrackedFiles, fileInRepo[0])
+                        addedFiles = append(addedFiles, fileInRepo[0])
+                    }
+                    foundInStaged = true
+                    break
+                }
+                foundInStaged = true
+                break
+            }
+        }
+        if foundInStaged {
+            continue
+        }
+
+        foundInCommited := false
+        for _, fileCommited := range commitedFiles {
+            fileCommitedDeconstructed := strings.Split(fileCommited[0], "/")
+            fileCommitedName := fileCommitedDeconstructed[len(fileCommitedDeconstructed)-1]
+            if fileInRepo[0] == fileCommitedName { // if filenames match
+                if fileInRepo[1] != fileCommited[1] { // if hashes don't match
+                    if !contains(addedFiles, fileInRepo[0]) {
+                        untrackedFiles = append(untrackedFiles, fileInRepo[0])
+                        addedFiles = append(addedFiles, fileInRepo[0])
+                    }
+                    break
+                }
+                foundInCommited = true
+                break
+            }
+        }
+        if foundInCommited {
+            continue
+        }
+        if !foundInStaged {
+            if !contains(addedFiles, fileInRepo[0]) {
+                untrackedFiles = append(untrackedFiles, fileInRepo[0])
+                addedFiles = append(addedFiles, fileInRepo[0])
+            }
+        }
+    }
+    return untrackedFiles
+}
+
+func contains(arr []string, item string) bool {
+    for _, arrItem := range arr {
+        if arrItem == item {
+            return true
+        }
+    }
+    return false
+}
 
 func kvStatus() {
     if (!isStagingEmpty()) {
@@ -588,6 +613,14 @@ func main() {
                 allFiles := getAllFiles()
                 for i := 0; i < len(allFiles); i++ {
                     fmt.Printf("name: %s\thash: %s\n", allFiles[i][0], allFiles[i][1])
+                }
+                os.Exit(0)
+
+            // Test argument, remove when implemented warning about untracked files
+            case "untracked":
+                untrackedFiles := getUntrackedFiles()
+                for i := 0; i < len(untrackedFiles); i++ {
+                    fmt.Printf("untracked file: %s\n", untrackedFiles[i])
                 }
                 os.Exit(0)
 
