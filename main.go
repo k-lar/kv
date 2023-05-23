@@ -567,7 +567,6 @@ func copyFromPrevCommit() {
 }
 
 func commitFiles() {
-    // TODO: Copy changes from staging area to new commit
     // Don't know how I'm going to handle deleted files yet...
 
     // If first commit, make commitNum = 1 instead of 0
@@ -585,7 +584,9 @@ func commitFiles() {
 
     os.Chdir(getRootDir())
 
-    copyFromPrevCommit()
+    if (commitNum != 1) {
+        copyFromPrevCommit()
+    }
 
     for i := 0; i < len(commits); i++ {
         singleCommit := strings.Split(commits[i], ";")
