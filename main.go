@@ -349,6 +349,7 @@ func getAllFiles() [][]string {
 }
 
 func getUntrackedFiles() []string {
+    // TODO: Go to root dir before executing this to be accurate
     allFiles := getAllFiles()
     stagedFiles := getStagedFiles()
     commitedFiles := getCommitedFiles()
