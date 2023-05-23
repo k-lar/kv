@@ -428,8 +428,6 @@ func kvStatus() {
         fmt.Println()
     }
 
-    // TODO: Implement warning about untracked files!
-
     untrackedFiles := trackFiles()
     if (len(untrackedFiles) != 0) {
         fmt.Println("Untracked files:")
@@ -524,6 +522,9 @@ func isStagingEmpty() bool {
 }
 
 func commitFiles() {
+    // TODO: Copy changes from staging area to new commit
+    // Don't know how I'm going to handle deleted files yet...
+
     // If first commit, make commitNum = 1 instead of 0
     commitNum := commitNumber() + 1
 
