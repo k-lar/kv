@@ -348,8 +348,7 @@ func getAllFiles() [][]string {
     return filesInRootDir
 }
 
-func getUntrackedFiles() []string {
-    // TODO: Go to root dir before executing this to be accurate
+func trackFiles() []string {
     allFiles := getAllFiles()
     stagedFiles := getStagedFiles()
     commitedFiles := getCommitedFiles()
@@ -363,13 +362,17 @@ func getUntrackedFiles() []string {
             if fileInRepo[0] == fileStaged[0] { // if filenames match
                 if fileInRepo[1] != fileStaged[1] { // if hashes don't match
                     if !contains(addedFiles, fileInRepo[0]) {
-                        untrackedFiles = append(untrackedFiles, fileInRepo[0])
+                        fileAndStatus := "modified;" + fileInRepo[0]
+                        untrackedFiles = append(untrackedFiles, fileAndStatus)
                         addedFiles = append(addedFiles, fileInRepo[0])
                     }
                     foundInStaged = true
                     break
                 }
                 foundInStaged = true
+                if !contains(addedFiles, fileInRepo[0]) { // if hashes match and file not already added
+                    addedFiles = append(addedFiles, fileInRepo[0])
+                }
                 break
             }
         }
@@ -384,7 +387,8 @@ func getUntrackedFiles() []string {
             if fileInRepo[0] == fileCommitedName { // if filenames match
                 if fileInRepo[1] != fileCommited[1] { // if hashes don't match
                     if !contains(addedFiles, fileInRepo[0]) {
-                        untrackedFiles = append(untrackedFiles, fileInRepo[0])
+                        fileAndStatus := "modified;" + fileInRepo[0]
+                        untrackedFiles = append(untrackedFiles, fileAndStatus)
                         addedFiles = append(addedFiles, fileInRepo[0])
                     }
                     break
@@ -398,7 +402,8 @@ func getUntrackedFiles() []string {
         }
         if !foundInStaged {
             if !contains(addedFiles, fileInRepo[0]) {
-                untrackedFiles = append(untrackedFiles, fileInRepo[0])
+                fileAndStatus := "untracked;" + fileInRepo[0]
+                untrackedFiles = append(untrackedFiles, fileAndStatus)
                 addedFiles = append(addedFiles, fileInRepo[0])
             }
         }
@@ -424,11 +429,17 @@ func kvStatus() {
     }
 
     // TODO: Implement warning about untracked files!
-    // if (dirHasUntrackedFiles()) {
-    //     fmt.Println("Untracked files:")
-    //     fmt.Println("============================")
-    //     showUntrackedFiles()
-    // }
+
+    untrackedFiles := trackFiles()
+    if (len(untrackedFiles) != 0) {
+        fmt.Println("Untracked files:")
+        fmt.Println("============================")
+        for i := 0; i < len(untrackedFiles); i++ {
+            splitUntrackedFiles := strings.Split(untrackedFiles[i], ";")
+
+            fmt.Printf("%s: %s\n", strings.ToUpper(splitUntrackedFiles[0]), splitUntrackedFiles[1])
+        }
+    }
 }
 
 func clearStagingArea() {
@@ -619,9 +630,9 @@ func main() {
 
             // Test argument, remove when implemented warning about untracked files
             case "untracked":
-                untrackedFiles := getUntrackedFiles()
+                untrackedFiles := trackFiles()
                 for i := 0; i < len(untrackedFiles); i++ {
-                    fmt.Printf("untracked file: %s\n", untrackedFiles[i])
+                    fmt.Printf("%s\n", untrackedFiles[i])
                 }
                 os.Exit(0)
 
