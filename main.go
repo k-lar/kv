@@ -349,6 +349,14 @@ func getAllFiles() [][]string {
 }
 
 func trackFiles() []string {
+    // Go to rootDir first to be accurate
+    oldDir, err := os.Getwd()
+    if err != nil {
+    	log.Println(err)
+    }
+
+    os.Chdir(getRootDir())
+
     allFiles := getAllFiles()
     stagedFiles := getStagedFiles()
     commitedFiles := getCommitedFiles()
@@ -408,6 +416,7 @@ func trackFiles() []string {
             }
         }
     }
+    os.Chdir(oldDir)
     return untrackedFiles
 }
 
