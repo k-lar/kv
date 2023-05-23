@@ -349,6 +349,10 @@ func getAllFiles() [][]string {
 }
 
 func trackFiles() []string {
+    // REALLY BAD CODE.
+    // FIXME: If file is in a directory, it's always untracked for some reason.
+
+
     // Go to rootDir first to be accurate
     oldDir, err := os.Getwd()
     if err != nil {
@@ -370,8 +374,8 @@ func trackFiles() []string {
             if fileInRepo[0] == fileStaged[0] { // if filenames match
                 if fileInRepo[1] != fileStaged[1] { // if hashes don't match
                     if !contains(addedFiles, fileInRepo[0]) {
-                        fileAndStatus := "modified;" + fileInRepo[0]
-                        untrackedFiles = append(untrackedFiles, fileAndStatus)
+                        // fileAndStatus := "updated;" + fileInRepo[0]
+                        untrackedFiles = append(untrackedFiles, fileInRepo[0])
                         addedFiles = append(addedFiles, fileInRepo[0])
                     }
                     foundInStaged = true
@@ -395,8 +399,8 @@ func trackFiles() []string {
             if fileInRepo[0] == fileCommitedName { // if filenames match
                 if fileInRepo[1] != fileCommited[1] { // if hashes don't match
                     if !contains(addedFiles, fileInRepo[0]) {
-                        fileAndStatus := "modified;" + fileInRepo[0]
-                        untrackedFiles = append(untrackedFiles, fileAndStatus)
+                        // fileAndStatus := "modified;" + fileInRepo[0]
+                        untrackedFiles = append(untrackedFiles, fileInRepo[0])
                         addedFiles = append(addedFiles, fileInRepo[0])
                     }
                     break
@@ -410,8 +414,8 @@ func trackFiles() []string {
         }
         if !foundInStaged {
             if !contains(addedFiles, fileInRepo[0]) {
-                fileAndStatus := "untracked;" + fileInRepo[0]
-                untrackedFiles = append(untrackedFiles, fileAndStatus)
+                // fileAndStatus := "untracked;" + fileInRepo[0]
+                untrackedFiles = append(untrackedFiles, fileInRepo[0])
                 addedFiles = append(addedFiles, fileInRepo[0])
             }
         }
@@ -442,9 +446,10 @@ func kvStatus() {
         fmt.Println("Untracked files:")
         fmt.Println("============================")
         for i := 0; i < len(untrackedFiles); i++ {
-            splitUntrackedFiles := strings.Split(untrackedFiles[i], ";")
+            // splitUntrackedFiles := strings.Split(untrackedFiles[i], ";")
 
-            fmt.Printf("%s: %s\n", strings.ToUpper(splitUntrackedFiles[0]), splitUntrackedFiles[1])
+            // fmt.Printf("%s: %s\n", strings.ToUpper(splitUntrackedFiles[0]), splitUntrackedFiles[1])
+            fmt.Printf("Untracked changes: %s\n", untrackedFiles[i])
         }
     }
 }
@@ -530,6 +535,37 @@ func isStagingEmpty() bool {
     return false
 }
 
+func copyFromPrevCommit() {
+    nextCommitNum := commitNumber() + 1
+    nextCommitVersion := ".kv/commit/v" + strconv.Itoa(nextCommitNum) + "/"
+    prevCommitFiles := getCommitedFiles()
+
+    // If file not in root dir, create directories
+    for i := 0; i < len(prevCommitFiles); i++ {
+        pathToFile := ""
+        commitedFile := prevCommitFiles[i][0]
+        if (strings.Contains(prevCommitFiles[i][0], "/")) {
+            dirToFile := strings.Split(prevCommitFiles[i][0], "/")
+            dirToFile = append(dirToFile[3:]) // remove .kv/commit/vN from path
+            for i := 0; i < len(dirToFile) - 1; i++ {
+                pathToFile = pathToFile + dirToFile[i] + "/"
+                fmt.Println(pathToFile)
+            }
+            pathToFile = nextCommitVersion + pathToFile
+            os.MkdirAll(pathToFile, 0700)
+            commitedFile = pathToFile + dirToFile[len(dirToFile)-1]
+        }
+
+        f, err := os.Create(commitedFile)
+        if err != nil {
+            log.Fatal(err)
+        }
+        defer f.Close()
+
+        copyFile(prevCommitFiles[i][0], commitedFile)
+    }
+}
+
 func commitFiles() {
     // TODO: Copy changes from staging area to new commit
     // Don't know how I'm going to handle deleted files yet...
@@ -548,6 +584,8 @@ func commitFiles() {
     }
 
     os.Chdir(getRootDir())
+
+    copyFromPrevCommit()
 
     for i := 0; i < len(commits); i++ {
         singleCommit := strings.Split(commits[i], ";")
