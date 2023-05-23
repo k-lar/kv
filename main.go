@@ -375,6 +375,7 @@ func trackFiles() []string {
                 if fileInRepo[1] != fileStaged[1] { // if hashes don't match
                     if !contains(addedFiles, fileInRepo[0]) {
                         // fileAndStatus := "updated;" + fileInRepo[0]
+                        fmt.Println("Appended because not staged: ", fileInRepo[0])
                         untrackedFiles = append(untrackedFiles, fileInRepo[0])
                         addedFiles = append(addedFiles, fileInRepo[0])
                     }
@@ -400,6 +401,7 @@ func trackFiles() []string {
                 if fileInRepo[1] != fileCommited[1] { // if hashes don't match
                     if !contains(addedFiles, fileInRepo[0]) {
                         // fileAndStatus := "modified;" + fileInRepo[0]
+                        fmt.Println("Appended because not commited: ", fileInRepo[0])
                         untrackedFiles = append(untrackedFiles, fileInRepo[0])
                         addedFiles = append(addedFiles, fileInRepo[0])
                     }
@@ -415,6 +417,7 @@ func trackFiles() []string {
         if !foundInStaged {
             if !contains(addedFiles, fileInRepo[0]) {
                 // fileAndStatus := "untracked;" + fileInRepo[0]
+                fmt.Println("Appended because not staged: ", fileInRepo[0])
                 untrackedFiles = append(untrackedFiles, fileInRepo[0])
                 addedFiles = append(addedFiles, fileInRepo[0])
             }
