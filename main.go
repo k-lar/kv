@@ -130,6 +130,7 @@ func stageFile(fileToStage string) {
     }
     defer f.Close()
 
+    // TODO: Show if file is modified. (Don't always show created)
     isDuplicate, lineNum := duplicateStageFile(fileToStage)
     if (isDuplicate) {
         // fmt.Printf("Found duplicate on line: %d\n", lineNum)
