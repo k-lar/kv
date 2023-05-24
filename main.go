@@ -348,6 +348,23 @@ func getAllFiles() [][]string {
     return filesInRootDir
 }
 
+func getCommitedFilesShort() [][]string {
+    commitedFiles := getCommitedFiles()
+    shortCommitedFiles := [][]string {}
+    for _, file := range commitedFiles {
+        split := strings.Split(file[0], "/")
+        split = split[3:]
+        shortFilePath := ""
+        for i := 0; i < len(split)-1; i++ {
+            shortFilePath = shortFilePath + split[i] + "/"
+        }
+        shortFilePath = shortFilePath + split[len(split)-1]
+        row := []string{shortFilePath, file[1]}
+        shortCommitedFiles = append(shortCommitedFiles, row)
+    }
+    return shortCommitedFiles
+}
+
 func trackFiles() []string {
     // REALLY BAD CODE.
     // FIXME: If file is in a directory, it's always untracked for some reason.
@@ -363,7 +380,7 @@ func trackFiles() []string {
 
     allFiles := getAllFiles()
     stagedFiles := getStagedFiles()
-    commitedFiles := getCommitedFiles()
+    commitedFiles := getCommitedFilesShort()
 
     untrackedFiles := []string{}
     addedFiles := []string{}
@@ -375,7 +392,6 @@ func trackFiles() []string {
                 if fileInRepo[1] != fileStaged[1] { // if hashes don't match
                     if !contains(addedFiles, fileInRepo[0]) {
                         // fileAndStatus := "updated;" + fileInRepo[0]
-                        fmt.Println("Appended because not staged: ", fileInRepo[0])
                         untrackedFiles = append(untrackedFiles, fileInRepo[0])
                         addedFiles = append(addedFiles, fileInRepo[0])
                     }
@@ -395,13 +411,10 @@ func trackFiles() []string {
 
         foundInCommited := false
         for _, fileCommited := range commitedFiles {
-            fileCommitedDeconstructed := strings.Split(fileCommited[0], "/")
-            fileCommitedName := fileCommitedDeconstructed[len(fileCommitedDeconstructed)-1]
-            if fileInRepo[0] == fileCommitedName { // if filenames match
+            if fileInRepo[0] == fileCommited[0] { // if filenames match
                 if fileInRepo[1] != fileCommited[1] { // if hashes don't match
                     if !contains(addedFiles, fileInRepo[0]) {
                         // fileAndStatus := "modified;" + fileInRepo[0]
-                        fmt.Println("Appended because not commited: ", fileInRepo[0])
                         untrackedFiles = append(untrackedFiles, fileInRepo[0])
                         addedFiles = append(addedFiles, fileInRepo[0])
                     }
@@ -417,7 +430,6 @@ func trackFiles() []string {
         if !foundInStaged {
             if !contains(addedFiles, fileInRepo[0]) {
                 // fileAndStatus := "untracked;" + fileInRepo[0]
-                fmt.Println("Appended because not staged: ", fileInRepo[0])
                 untrackedFiles = append(untrackedFiles, fileInRepo[0])
                 addedFiles = append(addedFiles, fileInRepo[0])
             }
@@ -554,7 +566,7 @@ func copyFromPrevCommit() {
             dirToFile = append(dirToFile[3:]) // remove .kv/commit/vN from path
             for i := 0; i < len(dirToFile) - 1; i++ {
                 pathToFile = pathToFile + dirToFile[i] + "/"
-                fmt.Println(pathToFile)
+                // fmt.Println(pathToFile)
             }
             pathToFile = nextCommitVersion + pathToFile
             os.MkdirAll(pathToFile, 0700)
@@ -669,6 +681,14 @@ func main() {
             // Test argument, remove when implemented warning about untracked files
             case "commited":
                 commitedFiles := getCommitedFiles()
+                for i := 0; i < len(commitedFiles); i++ {
+                    fmt.Printf("name: %s\thash: %s\n", commitedFiles[i][0], commitedFiles[i][1])
+                }
+                os.Exit(0)
+
+            // Test argument, remove when implemented warning about untracked files
+            case "shortcommited":
+                commitedFiles := getCommitedFilesShort()
                 for i := 0; i < len(commitedFiles); i++ {
                     fmt.Printf("name: %s\thash: %s\n", commitedFiles[i][0], commitedFiles[i][1])
                 }
