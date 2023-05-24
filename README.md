@@ -68,7 +68,7 @@ filepath;modification date;hash;status
 
 For example:
 ```
-"src/main.c;2023-05-11 05:42:15;sa31sv35s92js84jg33;created"
+"src/main.c;2023-05-11 05:42:15;sa31sv35bc92js84jg33;created"
 ".kvignore;2023-05-16 05:11:04;hw81ks96ms24dl80sm12;created"
 "README.md;2022-04-14 05:49:09;bl12sh56ka93tl22xc56;updated"
 ```
@@ -171,9 +171,9 @@ How I think it can work:
 - [X] Init the directories and files
 - [X] Status, show what's in the staging area
 - [X] Add files to the staging area
-- [ ] Commit files/changes
+- [X] Commit files/changes
+- [X] Implement SHA1 hashing of commits for integrity checks
 - [ ] Show diff between files (make a builtin diff)
-- [ ] Implement SHA1 hashing of commits for integrity checks
 - [ ] View history
 - [ ] Track deleted files
 - [ ] Rollback to previous commits
