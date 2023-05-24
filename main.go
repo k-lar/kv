@@ -444,15 +444,17 @@ func kvStatus() {
         fmt.Println()
     }
 
-    untrackedFiles := trackFiles()
-    if (len(untrackedFiles) != 0) {
-        fmt.Println("Untracked files:")
-        fmt.Println("============================")
-        for i := 0; i < len(untrackedFiles); i++ {
-            // splitUntrackedFiles := strings.Split(untrackedFiles[i], ";")
+    if (commitNumber() != 0) {
+        untrackedFiles := trackFiles()
+        if (len(untrackedFiles) != 0) {
+            fmt.Println("Untracked files:")
+            fmt.Println("============================")
+            for i := 0; i < len(untrackedFiles); i++ {
+                // splitUntrackedFiles := strings.Split(untrackedFiles[i], ";")
 
-            // fmt.Printf("%s: %s\n", strings.ToUpper(splitUntrackedFiles[0]), splitUntrackedFiles[1])
-            fmt.Printf("Untracked changes: %s\n", untrackedFiles[i])
+                // fmt.Printf("%s: %s\n", strings.ToUpper(splitUntrackedFiles[0]), splitUntrackedFiles[1])
+                fmt.Printf("Untracked changes: %s\n", untrackedFiles[i])
+            }
         }
     }
 }
