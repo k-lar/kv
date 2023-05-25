@@ -142,12 +142,6 @@ deleted files or updated files.)
     └── ...
 ```
 
-## What `status` should do
-
-Currently, status only displays what's in the staging area. What I want it to do, is show
-untracked files and any files that have been modified (do that by checking hash of files in repo
-against the ones in the last commit).
-
 ## How commits know which files to take from previous versions
 
 How I think it can work:
