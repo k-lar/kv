@@ -10,7 +10,8 @@ version, the system opens the version-0 file and applies all subsequent deltas, 
 derive the version the user asked for.”
 
 Inspiration:
-[here](https://levelup.gitconnected.com/how-was-i-build-a-version-control-system-vcs-using-pure-go-83ec8ec5d4f4)
+[here](https://levelup.gitconnected.com/how-was-i-build-a-version-control-system-vcs-using-pure-go-83ec8ec5d4f4)  
+[and here](https://ryanheathcote.com/git/build-your-own-vcs)
 
 ## Installation
 
