@@ -16,6 +16,10 @@ import (
     // "compress/zlib"
 )
 
+// TODO: Create function checkForDeletedFiles() to run with kvStatus()
+// Get commited files, get staged files, and check if they still exist
+// Return stuff that doesn't exist, if nothing is found return ""
+
 func getVersion() {
     version := "0.0.1"
     fmt.Println(version)
@@ -162,6 +166,8 @@ func stageFile(fileToStage string) {
     } else {
         fmt.Printf("%s does not exist.\n", relPathToFile)
     }
+
+    os.Chdir(currentDir)
 }
 
 func deleteLine(file string, num int) {
