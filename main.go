@@ -16,10 +16,6 @@ import (
     // "compress/zlib"
 )
 
-// TODO: Create function checkForDeletedFiles() to run with kvStatus()
-// Get commited files, get staged files, and check if they still exist
-// Return stuff that doesn't exist, if nothing is found return ""
-
 func getVersion() {
     version := "0.0.1"
     fmt.Println(version)
@@ -467,6 +463,57 @@ func contains(arr []string, item string) bool {
     return false
 }
 
+func removeDuplicateStr(strSlice []string) []string {
+    allKeys := make(map[string]bool)
+    list := []string{}
+    for _, item := range strSlice {
+        if _, value := allKeys[item]; !value {
+            allKeys[item] = true
+            list = append(list, item)
+        }
+    }
+    return list
+}
+
+func getDeletedFiles() []string {
+    commitedFilesWithHashes := getCommitedFilesShort()
+    commitedFiles := []string {}
+
+    stagedFilesWithHashes := getStagedFiles()
+    stagedFiles := []string {}
+
+    allFilesWithHashes := getAllFiles()
+    allFiles := []string {}
+
+    for i := 0; i < len(commitedFilesWithHashes); i++ {
+        commitedFiles = append(commitedFiles, commitedFilesWithHashes[i][0])
+    }
+    for i := 0; i < len(stagedFilesWithHashes); i++ {
+        stagedFiles = append(stagedFiles, stagedFilesWithHashes[i][0])
+    }
+    for i := 0; i < len(allFilesWithHashes); i++ {
+        allFiles = append(allFiles, allFilesWithHashes[i][0])
+    }
+
+
+    deletedFiles := []string {}
+
+    for i := 0; i < len(commitedFiles); i++ {
+        if (!contains(allFiles, commitedFiles[i])) {
+            deletedFiles = append(deletedFiles, commitedFiles[i])
+        }
+    }
+    for i := 0; i < len(stagedFiles); i++ {
+        if (!contains(allFiles, stagedFiles[i])) {
+            deletedFiles = append(deletedFiles, stagedFiles[i])
+        }
+    }
+
+    return removeDuplicateStr(deletedFiles)
+}
+
+// TODO: Optimize kvStatus(), jesus christ is it slow.
+// Pass variables to functions instead of always calculating everything again
 func kvStatus() {
     if (!isStagingEmpty()) {
         fmt.Println("Staging:")
@@ -486,6 +533,19 @@ func kvStatus() {
                 // fmt.Printf("%s: %s\n", strings.ToUpper(splitUntrackedFiles[0]), splitUntrackedFiles[1])
                 fmt.Printf("Untracked changes: %s\n", untrackedFiles[i])
             }
+            fmt.Println()
+        }
+    }
+
+    deletedFiles := getDeletedFiles()
+    if (len(deletedFiles) > 0) {
+        fmt.Println("Deleted files:")
+        fmt.Println("============================")
+        for i := 0; i < len(deletedFiles); i++ {
+            // splitUntrackedFiles := strings.Split(untrackedFiles[i], ";")
+
+            // fmt.Printf("%s: %s\n", strings.ToUpper(splitUntrackedFiles[0]), splitUntrackedFiles[1])
+            fmt.Printf("Removed: %s\n", deletedFiles[i])
         }
     }
 }
