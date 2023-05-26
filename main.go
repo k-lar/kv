@@ -368,8 +368,6 @@ func getCommitedFilesShort() [][]string {
 
 func trackFiles() []string {
     // REALLY BAD CODE.
-    // FIXME: If file is in a directory, it's always untracked for some reason.
-
 
     // Go to rootDir first to be accurate
     oldDir, err := os.Getwd()
