@@ -168,8 +168,8 @@ How I think it can work:
 - [X] Add files to the staging area
 - [X] Commit files/changes
 - [X] Implement SHA1 hashing of commits for integrity checks
+- [X] Track deleted files
 - [ ] Show diff between files (make a builtin diff)
 - [ ] View history
-- [ ] Track deleted files
 - [ ] Rollback to previous commits
 - [ ] Decent UI/UX
