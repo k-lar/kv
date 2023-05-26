@@ -16,9 +16,6 @@ import (
     // "compress/zlib"
 )
 
-// TODO: make function that will give you the correct suffix for files when you're not in root dir
-// If you're in rootdir/bla/test/ and want to add file1, make it return string "bla/test/file1"
-
 func getVersion() {
     version := "0.0.1"
     fmt.Println(version)
@@ -123,6 +120,23 @@ func getHashSum(filepath string) string {
 }
 
 func stageFile(fileToStage string) {
+    currentDir, err := os.Getwd()
+    if err != nil {
+    	log.Println(err)
+    }
+    currentDirAndFile := currentDir + "/" + fileToStage
+
+    os.Chdir(getRootDir())
+    rootDir, err := os.Getwd()
+    if err != nil {
+    	log.Println(err)
+    }
+
+    relPathToFile, err := filepath.Rel(rootDir, currentDirAndFile) //use the Rel function to get the relative path
+    if err != nil {
+       log.Println("Error:", err) //print error if no path is obtained
+    }
+
     f, err := os.OpenFile(stagingAreaLocation(),
     	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
     if err != nil {
@@ -131,22 +145,22 @@ func stageFile(fileToStage string) {
     defer f.Close()
 
     // TODO: Show if file is modified. (Don't always show created)
-    isDuplicate, lineNum := duplicateStageFile(fileToStage)
+    isDuplicate, lineNum := duplicateStageFile(relPathToFile)
     if (isDuplicate) {
         // fmt.Printf("Found duplicate on line: %d\n", lineNum)
-        deleteLine(".kv/staging-area.txt", lineNum)
+        deleteLine(stagingAreaLocation(), lineNum)
     }
 
-    if fileExists(fileToStage) {
-        sha1Write := getHashSum(fileToStage)
-        writeString := fileToStage + ";" + getCurrentTime() + ";" + sha1Write + ";created\n"
+    if fileExists(relPathToFile) {
+        sha1Write := getHashSum(relPathToFile)
+        writeString := relPathToFile + ";" + getCurrentTime() + ";" + sha1Write + ";created\n"
         if _, err := f.WriteString(writeString); err != nil {
         	log.Println(err)
         }
 
-        fmt.Printf("Added %s to the repository.\n", fileToStage)
+        fmt.Printf("Added %s to the repository.\n", relPathToFile)
     } else {
-        fmt.Printf("%s does not exist.\n", fileToStage)
+        fmt.Printf("%s does not exist.\n", relPathToFile)
     }
 }
 
