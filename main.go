@@ -547,6 +547,7 @@ func kvStatus() {
             // fmt.Printf("%s: %s\n", strings.ToUpper(splitUntrackedFiles[0]), splitUntrackedFiles[1])
             fmt.Printf("Removed: %s\n", deletedFiles[i])
         }
+        fmt.Println()
     }
 }
 
@@ -800,6 +801,18 @@ func main() {
                     os.Exit(0)
                 }
                 os.Exit(0)
+
+            // case "rm";
+            //     if (len(os.Args) > i+1) {
+            //         for i := i+1; i < len(os.Args); i++ {
+            //             stageRemovalFile(os.Args[i])
+            //         }
+            //     } else {
+            //         fmt.Println("Nothing to add.")
+            //         os.Exit(0)
+            //     }
+            //     os.Exit(0)
+
 
             case "commit":
                 if (isStagingEmpty()) {
