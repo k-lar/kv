@@ -318,6 +318,16 @@ func getCommitedFiles() [][]string {
     }
     commitDir = commitDir + strconv.Itoa(commitNumber()) + "/"
 
+    if _, err := os.Stat(commitDir); err != nil {
+        if os.IsNotExist(err) {
+            // file does not exist
+            return commitedFiles
+        } else {
+            // other error
+            log.Fatal("Can not find commit folder")
+        }
+    }
+
     err := filepath.Walk(commitDir, func(path string, info os.FileInfo, err error) error {
         if err != nil {
             log.Println(err)
